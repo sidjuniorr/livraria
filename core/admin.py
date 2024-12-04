@@ -5,8 +5,7 @@ Django admin customization.
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
 from django.utils.translation import gettext_lazy as _
-from core.models import Autor, Categoria, Editora, Livro, User
-from core.models import Compra
+from core.models import Autor, Categoria, Editora, Livro, User, Compra, ItensCompra
 
 
 @admin.register(User)
@@ -87,5 +86,19 @@ class LivroAdmin(admin.ModelAdmin):
     list_filter = ("editora", "categoria")
     ordering = ("titulo", "editora", "categoria")
     list_per_page = 25
-    
-admin.site.register(Compra)
+
+
+# Adicionando TabularInline para os itens da compra
+class ItensCompraInline(admin.TabularInline):
+    model = ItensCompra
+    extra = 1  # Quantidade de itens adicionais exibidos
+
+
+@admin.register(Compra)
+class CompraAdmin(admin.ModelAdmin):
+    list_display = ("usuario", "status")
+    search_fields = ("usuario__email", "status")  # Ajustado para buscar pelo e-mail do usuário
+    list_filter = ("status",)
+    ordering = ("usuario", "status")
+    list_per_page = 25
+    inlines = [ItensCompraInline]
