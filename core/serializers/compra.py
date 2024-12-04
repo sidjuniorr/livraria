@@ -2,6 +2,15 @@ from rest_framework.serializers import ModelSerializer, CharField, SerializerMet
 from core.models import Compra, ItensCompra
 
 
+class ItensCompraListSerializer(ModelSerializer):
+    livro = CharField(source="livro.titulo", read_only=True)  # Exibe o título do livro
+    quantidade = CharField(read_only=True)  # Exibe a quantidade do item
+
+    class Meta:
+        model = ItensCompra
+        fields = ("livro", "quantidade")  # Exibe título do livro e quantidade
+
+
 class ItensCompraSerializer(ModelSerializer):
     total = SerializerMethodField()
 
@@ -14,6 +23,15 @@ class ItensCompraSerializer(ModelSerializer):
         depth = 1
 
 
+class CompraListSerializer(ModelSerializer):
+    usuario = CharField(source="usuario.email", read_only=True)  # Exibe o e-mail do usuário
+    itens = ItensCompraListSerializer(many=True, read_only=True)  # Listagem dos itens de compra
+
+    class Meta:
+        model = Compra
+        fields = ("id", "usuario", "itens")  # Campos para a listagem
+
+
 class CompraSerializer(ModelSerializer):
     """Serializer para compras com itens detalhados."""
     status = CharField(source="get_status_display", read_only=True)  # Exibe o nome do status
@@ -23,7 +41,6 @@ class CompraSerializer(ModelSerializer):
     class Meta:
         model = Compra
         fields = ("id", "usuario", "status", "total", "itens")
-
 
     @property
     def total(self):
@@ -57,3 +74,11 @@ class CompraCreateUpdateSerializer(ModelSerializer):
             for item_data in itens_data:
                 ItensCompra.objects.create(compra=compra, **item_data)
         return super().update(compra, validated_data)
+    
+class ItensCompraListSerializer(ModelSerializer):
+    livro = CharField(source="livro.titulo", read_only=True)
+
+    class Meta:
+        model = ItensCompra
+        fields = ("quantidade", "livro")
+        depth = 1
