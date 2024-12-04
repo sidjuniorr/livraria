@@ -1,6 +1,5 @@
-from rest_framework.serializers import ModelSerializer, CharField
+from rest_framework.serializers import ModelSerializer, CharField, SerializerMethodField
 from core.models import Compra, ItensCompra
-from rest_framework.serializers import CharField, ModelSerializer, SerializerMethodField
 
 
 class ItensCompraSerializer(ModelSerializer):
@@ -20,15 +19,45 @@ class CompraSerializer(ModelSerializer):
     status = CharField(source="get_status_display", read_only=True)  # Exibe o nome do status
     usuario = CharField(source="usuario.email", read_only=True)  # Exibe o email do usuário
     itens = ItensCompraSerializer(many=True, read_only=True)  # Inclui os itens da compra
-    fields = ("id", "usuario", "status", "total", "itens")
 
     class Meta:
         model = Compra
-        fields = "__all__"  # Inclui todos os campos do modelo Compra
+        fields = ("id", "usuario", "status", "total", "itens")
+
+
     @property
     def total(self):
-        # total = 0
-        # for item in self.itens.all():
-        #     total += item.livro.preco * item.quantidade
-        # return total
-        return sum(item.livro.preco * item.quantidade for item in self.itens.all())
+        return sum(item.livro.preco * item.quantidade for item in self.instance.itens.all())
+
+
+class ItensCompraCreateUpdateSerializer(ModelSerializer):
+    class Meta:
+        model = ItensCompra
+        fields = ("livro", "quantidade")
+
+
+class CompraCreateUpdateSerializer(ModelSerializer):
+    itens = ItensCompraCreateUpdateSerializer(many=True)
+
+    class Meta:
+        model = Compra
+        fields = ("usuario", "itens")
+
+    def create(self, validated_data):
+        itens_data = validated_data.pop("itens")
+        compra = Compra.objects.create(**validated_data)
+        for item_data in itens_data:
+            ItensCompra.objects.create(compra=compra, **item_data)
+        return compra
+
+    def update(self, instance, validated_data):
+        itens_data = validated_data.pop("itens", [])
+        instance.usuario = validated_data.get("usuario", instance.usuario)
+        instance.save()
+
+        # Atualiza itens
+        instance.itens.all().delete()
+        for item_data in itens_data:
+            ItensCompra.objects.create(compra=instance, **item_data)
+
+        return instance
