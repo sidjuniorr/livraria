@@ -6,7 +6,8 @@ class ItensCompraSerializer(ModelSerializer):
     """Serializer para itens da compra."""
     class Meta:
         model = ItensCompra
-        fields = "__all__"  # Inclui todos os campos do modelo ItensCompra
+        fields = ("livro", "quantidade")
+        depth = 1
 
 
 class CompraSerializer(ModelSerializer):
