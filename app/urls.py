@@ -4,7 +4,6 @@ from django.contrib import admin
 from django.urls import include, path
 from uploader.router import router as uploader_router
 
-
 from drf_spectacular.views import (
     SpectacularAPIView,
     SpectacularRedocView,
@@ -13,8 +12,15 @@ from drf_spectacular.views import (
 from rest_framework.routers import DefaultRouter
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 
-from core.views import UserViewSet
-from core.views import CategoriaViewSet, EditoraViewSet, AutorViewSet, LivroViewSet
+# Importações de ViewSets
+from core.views import (
+    UserViewSet,
+    CategoriaViewSet,
+    EditoraViewSet,
+    AutorViewSet,
+    LivroViewSet,
+    CompraViewSet,  # Inclua essa linha
+)
 
 router = DefaultRouter()
 router.register(r"livros", LivroViewSet)
@@ -22,6 +28,7 @@ router.register(r"categorias", CategoriaViewSet)
 router.register(r"editoras", EditoraViewSet)
 router.register(r"autores", AutorViewSet)
 router.register(r"usuarios", UserViewSet, basename="usuarios")
+router.register(r"compras", CompraViewSet)  # Registro do endpoint para compras
 
 urlpatterns = [
     path("admin/", admin.site.urls),
