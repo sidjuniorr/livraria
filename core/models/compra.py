@@ -1,4 +1,5 @@
 from django.db import models
+from django.utils.timezone import now  # Importando 'now' caso precise em outras partes do código
 from .livro import Livro
 from .user import User
 
@@ -10,7 +11,9 @@ class Compra(models.Model):
         ENTREGUE = 4, "Entregue"
 
     usuario = models.ForeignKey(User, on_delete=models.PROTECT, related_name="compras")
-    status = models.IntegerField(choices=StatusCompra.choices,  default=StatusCompra.CARRINHO)
+    status = models.IntegerField(choices=StatusCompra.choices, default=StatusCompra.CARRINHO)
+    data = models.DateTimeField(auto_now_add=True)  # Apenas 'auto_now_add=True', sem 'default'
+
     @property
     def total(self):
         return sum(item.preco * item.quantidade for item in self.itens.all())
