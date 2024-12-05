@@ -7,9 +7,10 @@ from core.serializers import CompraSerializer, CompraCreateUpdateSerializer, Com
 class CompraViewSet(ModelViewSet):
     queryset = Compra.objects.all()
 
-    def get_serializer_class(self):
-        if self.action == "list":
-            return CompraListSerializer  # Usar o serializador para listagem
-        if self.action in ("create", "update"):
-            return CompraCreateUpdateSerializer  # Usar o serializador para criação e atualização
-        return CompraSerializer  # Usar o serializador padrão para outras ações (detalhamento)
+    def get_queryset(self):
+        usuario = self.request.user
+        if usuario.is_superuser:
+            return Compra.objects.all()
+        if usuario.groups.filter(name="Administradores"):
+            return Compra.objects.all()
+        return Compra.objects.filter(usuario=usuario)
