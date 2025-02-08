@@ -1,4 +1,11 @@
-from rest_framework.serializers import ModelSerializer, SlugRelatedField, DecimalField, Serializer, ValidationError, IntegerField
+from rest_framework.serializers import (
+    DecimalField,
+    ModelSerializer,
+    Serializer,
+    SlugRelatedField,
+    ValidationError,
+    IntegerField,
+)
 
 from uploader.models import Image
 from uploader.serializers import ImageSerializer
