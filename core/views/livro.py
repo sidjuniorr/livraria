@@ -13,13 +13,15 @@ from core.serializers import (
 from django.db.models.aggregates import Sum
 from core.models import Livro
 from django_filters.rest_framework import DjangoFilterBackend
+from rest_framework.filters import SearchFilter
 
 
 class LivroViewSet(ModelViewSet):
     queryset = Livro.objects.all()
     serializer_class = LivroSerializer
-    filter_backends = [DjangoFilterBackend]
+    filter_backends = [DjangoFilterBackend, SearchFilter]
     filterset_fields = ["categoria__descricao", "editora__nome"]
+    search_fields = ["titulo"]
 
     def get_serializer_class(self):
         if self.action == "list":
