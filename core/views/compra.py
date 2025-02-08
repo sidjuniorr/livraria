@@ -39,7 +39,7 @@ class CompraViewSet(ModelViewSet):
             )
 
         with transaction.atomic():
-            for item in compra.itens.all():
+            for item in compra.itens.all():  # Certifique-se que 'itens' é o related_name correto no seu modelo Compra
                 if item.quantidade > item.livro.quantidade:
                     return Response(
                         status=status.HTTP_400_BAD_REQUEST,
@@ -67,7 +67,7 @@ class CompraViewSet(ModelViewSet):
             status=Compra.StatusCompra.FINALIZADO, data__gte=inicio_mes
         )
 
-        total_vendas = sum(compra.total for compra in compras)
+        total_vendas = sum(compra.total for compra in compras)  # Assumindo que 'total' é um campo no model Compra
         quantidade_vendas = compras.count()
 
         return Response(

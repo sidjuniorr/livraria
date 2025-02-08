@@ -5,6 +5,7 @@ from .autor import AutorSerializer
 from .livro import (
     LivroAlterarPrecoSerializer,
     LivroListSerializer,
+    LivroAjustarEstoqueSerializer,
     LivroRetrieveSerializer,
     LivroSerializer,
     LivroAjustarEstoqueSerializer
