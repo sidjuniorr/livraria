@@ -12,11 +12,14 @@ from core.serializers import (
 )  # Importe todos os serializers necessários
 from django.db.models.aggregates import Sum
 from core.models import Livro
+from django_filters.rest_framework import DjangoFilterBackend
 
 
 class LivroViewSet(ModelViewSet):
     queryset = Livro.objects.all()
     serializer_class = LivroSerializer
+    filter_backends = [DjangoFilterBackend]
+    filterset_fields = ["categoria__descricao", "editora__nome"]
 
     def get_serializer_class(self):
         if self.action == "list":
@@ -59,9 +62,7 @@ class LivroViewSet(ModelViewSet):
 
     @action(detail=False, methods=["get"])
     def mais_vendidos(self, request):
-        livros = Livro.objects.annotate(total_vendidos=Sum("itenscompra__quantidade")).filter(
-            total_vendidos__gt=10
-        )
+        livros = Livro.objects.annotate(total_vendidos=Sum("itens_compra__quantidade")).filter(total_vendidos__gt=10) # Correção aqui
 
         data = [
             {
