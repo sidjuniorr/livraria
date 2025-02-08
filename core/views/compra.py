@@ -4,20 +4,29 @@ from django.utils import timezone
 from rest_framework import status
 from rest_framework.decorators import action
 from rest_framework.response import Response
-from rest_framework.permissions import IsAuthenticated  # Importação corrigida
+from rest_framework.permissions import IsAuthenticated
+from django_filters.rest_framework import DjangoFilterBackend
+from rest_framework.filters import OrderingFilter, SearchFilter
 from core.models import Compra
 from core.serializers import CompraCreateUpdateSerializer, CompraListSerializer, CompraSerializer
 
 
 class CompraViewSet(ModelViewSet):
     queryset = Compra.objects.all()
-    permission_classes = [IsAuthenticated]  # Adicionado para garantir autenticação
+    permission_classes = [IsAuthenticated]
+
+    filter_backends = [DjangoFilterBackend, OrderingFilter, SearchFilter]
+    filterset_fields = ["usuario__email", "status", "data"]  # Adicionado "data" para filtragem
+    search_fields = ["usuario__email"]
+    ordering_fields = ["usuario__email", "status", "data"]  # Adicionado "data" para ordenação
+    ordering = ["-data"]  # Ordena por data decrescente (mais recente primeiro)
+
 
     def get_queryset(self):
         usuario = self.request.user
         if usuario.is_superuser:
             return Compra.objects.all()
-        if usuario.groups.filter(name="Administradores").exists():  # Melhor verificação
+        if usuario.groups.filter(name="Administradores").exists():
             return Compra.objects.all()
         return Compra.objects.filter(usuario=usuario)
 
@@ -39,7 +48,7 @@ class CompraViewSet(ModelViewSet):
             )
 
         with transaction.atomic():
-            for item in compra.itens.all():  # Certifique-se que 'itens' é o related_name correto no seu modelo Compra
+            for item in compra.itens.all():
                 if item.quantidade > item.livro.quantidade:
                     return Response(
                         status=status.HTTP_400_BAD_REQUEST,
@@ -67,7 +76,7 @@ class CompraViewSet(ModelViewSet):
             status=Compra.StatusCompra.FINALIZADO, data__gte=inicio_mes
         )
 
-        total_vendas = sum(compra.total for compra in compras)  # Assumindo que 'total' é um campo no model Compra
+        total_vendas = sum(compra.total for compra in compras)
         quantidade_vendas = compras.count()
 
         return Response(
