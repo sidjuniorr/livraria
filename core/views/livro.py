@@ -65,7 +65,7 @@ class LivroViewSet(ModelViewSet):
 
     @action(detail=False, methods=["get"])
     def mais_vendidos(self, request):
-        livros = Livro.objects.annotate(total_vendidos=Sum("itens_compra__quantidade")).filter(total_vendidos__gt=10) # Correção aqui
+        livros = Livro.objects.annotate(total_vendidos=Sum("itenscompra__quantidade")).filter(total_vendidos__gt=10)
 
         data = [
             {
