@@ -2,7 +2,7 @@ from rest_framework import status
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework.viewsets import ModelViewSet
-from rest_framework.permissions import IsAuthenticated, AllowAny  # Importe as classes de permissão
+from rest_framework.permissions import AllowAny, IsAuthenticated  # Importe AllowAny
 from core.serializers import (
     LivroListSerializer,
     LivroSerializer,
@@ -23,7 +23,13 @@ class LivroViewSet(ModelViewSet):
     search_fields = ["titulo"]
     ordering_fields = ["titulo", "preco"]
     ordering = ["titulo"]
-    permission_classes = [IsAuthenticated]
+
+    def get_permissions(self):
+        if self.action == 'list':  # Ação 'list' permite acesso anônimo
+            permission_classes = [AllowAny]
+        else:  # Outras ações exigem autenticação
+            permission_classes = [IsAuthenticated]
+        return [permission() for permission in permission_classes]
 
     def get_serializer_class(self):
         if self.action == "list":
