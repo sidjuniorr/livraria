@@ -4,6 +4,7 @@ from uploader.router import router as uploader_router
 from django.conf import settings
 from django.conf.urls.static import static
 
+
 from drf_spectacular.views import (
     SpectacularAPIView,
     SpectacularSwaggerView,

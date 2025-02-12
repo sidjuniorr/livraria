@@ -23,6 +23,7 @@ class Livro(models.Model):
         blank=True,
         default=None,
     )
+    favorito = models.BooleanField(default=False)
 
 
     def __str__(self):

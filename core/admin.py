@@ -78,9 +78,9 @@ class EditoraAdmin(admin.ModelAdmin):
 
 @admin.register(Livro)
 class LivroAdmin(admin.ModelAdmin):
-    list_display = ("titulo", "editora", "categoria")
+    list_display = ("titulo", "editora", "categoria", "favorito")  # Adicione "favorito" aqui
     search_fields = ("titulo", "editora__nome", "categoria__descricao")
-    list_filter = ("editora", "categoria")
+    list_filter = ("editora", "categoria", "favorito")  # Adicione "favorito" aqui
     ordering = ("titulo", "editora", "categoria")
     list_per_page = 25
 

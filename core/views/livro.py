@@ -2,18 +2,18 @@ from rest_framework import status
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework.viewsets import ModelViewSet
+from rest_framework.permissions import IsAuthenticated, AllowAny  # Importe as classes de permissão
 from core.serializers import (
     LivroListSerializer,
     LivroSerializer,
     LivroRetrieveSerializer,
     LivroAlterarPrecoSerializer,
     LivroAjustarEstoqueSerializer,
-)  # Importe todos os serializers necessários
+)
 from django.db.models.aggregates import Sum
 from core.models import Livro
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework.filters import SearchFilter, OrderingFilter
-
 
 class LivroViewSet(ModelViewSet):
     queryset = Livro.objects.all()
@@ -23,6 +23,7 @@ class LivroViewSet(ModelViewSet):
     search_fields = ["titulo"]
     ordering_fields = ["titulo", "preco"]
     ordering = ["titulo"]
+    permission_classes = [IsAuthenticated]
 
     def get_serializer_class(self):
         if self.action == "list":
@@ -77,3 +78,11 @@ class LivroViewSet(ModelViewSet):
         ]
 
         return Response(data, status=status.HTTP_200_OK)
+
+    @action(detail=True, methods=['patch'])
+    def favoritar(self, request, pk=None):
+        livro = self.get_object()
+        livro.favorito = request.data.get('favorito', not livro.favorito)  # Toggle or set
+        livro.save()
+        serializer = self.get_serializer(livro)  # Use the appropriate serializer
+        return Response(serializer.data)
