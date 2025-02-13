@@ -6,3 +6,4 @@ from .livro import LivroViewSet
 from .compra import CompraViewSet
 from django.contrib import admin
 from django.urls import include, path
+from .favorito import FavoritoViewSet

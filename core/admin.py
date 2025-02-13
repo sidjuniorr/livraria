@@ -6,7 +6,7 @@ from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
 from django.utils.translation import gettext_lazy as _
 
-from core.models import Autor, Categoria, Compra, Editora, ItensCompra, Livro, User
+from .models import Autor, Categoria, Compra, Editora, ItensCompra, Livro, User, Favorito # Importe Favorito
 
 
 @admin.register(User)
@@ -99,3 +99,5 @@ class CompraAdmin(admin.ModelAdmin):
     ordering = ("status", "usuario", "data", "total")
     list_per_page = 25
     inlines = [ItensCompraInline]
+    
+admin.site.register(Favorito) # Registre Favorito

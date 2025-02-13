@@ -11,7 +11,7 @@ from core.serializers import (
     LivroAjustarEstoqueSerializer,
 )
 from django.db.models.aggregates import Sum
-from core.models import Livro
+from core.models import Livro, Favorito  # Importe o modelo Favorito
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework.filters import SearchFilter, OrderingFilter
 
@@ -25,7 +25,7 @@ class LivroViewSet(ModelViewSet):
     ordering = ["titulo"]
 
     def get_permissions(self):
-        if self.action == 'list':  # Ação 'list' permite acesso anônimo
+        if self.action == 'list' or self.action == 'mais_vendidos':  # Ação 'list' e 'mais_vendidos' permite acesso anônimo
             permission_classes = [AllowAny]
         else:  # Outras ações exigem autenticação
             permission_classes = [IsAuthenticated]
@@ -88,7 +88,20 @@ class LivroViewSet(ModelViewSet):
     @action(detail=True, methods=['patch'])
     def favoritar(self, request, pk=None):
         livro = self.get_object()
+        usuario = request.user  # Obtenha o usuário da requisição
+
+        # Verifica se já existe um registro de Favorito para este livro e usuário
+        favorito_existente = Favorito.objects.filter(usuario=usuario, livro=livro).exists()
+
         livro.favorito = request.data.get('favorito', not livro.favorito)  # Toggle or set
         livro.save()
+
+        if livro.favorito:  # Se o livro foi marcado como favorito
+            if not favorito_existente:  # E não existe um registro de Favorito
+                Favorito.objects.create(usuario=usuario, livro=livro)  # Crie um registro de Favorito
+        else:  # Se o livro foi desmarcado como favorito
+            if favorito_existente:  # E existe um registro de favorito
+                Favorito.objects.filter(usuario=usuario, livro=livro).delete()  # Remova o registro de Favorito
+
         serializer = self.get_serializer(livro)  # Use the appropriate serializer
         return Response(serializer.data)
